@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekap Nilai</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #f0fdfa; }
+  .sheet-in { animation: up .2s ease-out; }
+  @keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+  input[type=number]::-webkit-inner-spin-button { display: none; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<div id="loginScreen" class="fixed inset-0 z-[70] bg-gradient-to-br from-teal-700 to-teal-500 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl"><i class="fa-solid fa-book-open-reader"></i></div>
+      <h1 class="mt-3 text-xl font-bold text-slate-800">Rekap Nilai</h1>
+      <p class="text-sm text-slate-500">Masuk untuk melanjutkan</p>
+    </div>
+    <label class="text-xs font-semibold text-slate-500">Username</label>
+    <div class="relative mt-1 mb-3">
+      <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      <input id="inpUser" type="text" autocomplete="username" class="w-full border border-slate-300 rounded-xl pl-10 pr-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-500">
+    </div>
+    <label class="text-xs font-semibold text-slate-500">Password</label>
+    <div class="relative mt-1">
+      <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      <input id="inpPass" type="password" autocomplete="current-password" class="w-full border border-slate-300 rounded-xl pl-10 pr-11 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-500">
+      <button id="btnEye" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"><i class="fa-solid fa-eye"></i></button>
+    </div>
+    <p id="loginErr" class="hidden mt-3 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2"></p>
+    <button id="btnLogin" class="mt-5 w-full bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-semibold py-3 rounded-xl text-base transition">Masuk</button>
+  </div>
+</div>
+
+<header id="appHeader" class="hidden bg-teal-700 text-white shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-book-open-reader"></i></div>
+      <div class="min-w-0">
+        <h1 id="hMapel" class="text-lg font-bold leading-tight truncate">Rekap Nilai</h1>
+        <p id="hSekolah" class="text-teal-100 text-xs truncate"></p>
+      </div>
+    </div>
+    <div class="flex items-center justify-between gap-3 mt-3"><p id="hGuru" class="text-teal-50 text-xs"></p><button id="btnLogout" class="shrink-0 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-semibold"><i class="fa-solid fa-right-from-bracket mr-1"></i>Keluar</button></div>
+    <p id="hUser" class="text-teal-100 text-xs mt-1"></p>
+  </div>
+</header>
+
+<main id="appMain" class="hidden max-w-6xl mx-auto px-4 py-4 pb-24">
+
+  <div class="bg-white rounded-2xl shadow p-4 mb-4 flex flex-col md:flex-row gap-3">
+    <div class="md:w-56">
+      <label class="text-xs font-semibold text-slate-500">Pilih Kelas</label>
+      <select id="selKelas" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-3 text-base font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"></select>
+    </div>
+    <div class="md:w-48">
+      <label class="text-xs font-semibold text-slate-500">Pilih Semester</label>
+      <select id="selSemester" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-3 text-base font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+        <option value="1">Semester 1 (Bab 1-5)</option>
+        <option value="2">Semester 2 (Bab 6-10)</option>
+      </select>
+    </div>
+    <div class="flex-1">
+      <label class="text-xs font-semibold text-slate-500">Cari Siswa</label>
+      <div class="relative mt-1">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input id="inpCari" type="search" placeholder="Ketik nama siswa..." class="w-full border border-slate-300 rounded-xl pl-10 pr-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-teal-500">
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+    <div class="bg-white rounded-2xl shadow p-3"><p class="text-xs text-slate-500">Jumlah Siswa</p><p id="stJumlah" class="text-2xl font-bold text-teal-700">0</p></div>
+    <div class="bg-white rounded-2xl shadow p-3"><p class="text-xs text-slate-500">Rata-rata Rapor</p><p id="stRata" class="text-2xl font-bold text-teal-700">-</p></div>
+    <div class="bg-white rounded-2xl shadow p-3"><p class="text-xs text-slate-500">Total % Ketuntasan</p><p id="stTuntas" class="text-2xl font-bold text-emerald-600">0%</p></div>
+    <div class="bg-white rounded-2xl shadow p-3"><p class="text-xs text-slate-500">Belum Dinilai</p><p id="stBelum" class="text-2xl font-bold text-amber-600">0</p></div>
+  </div>
+
+  <div id="loading" class="text-center py-12 text-teal-700"><i class="fa-solid fa-spinner fa-spin text-3xl"></i><p class="mt-2 text-sm">Memuat data...</p></div>
+
+  <div id="cards" class="grid gap-3 md:hidden"></div>
+
+  <div id="tableWrap" class="hidden md:block bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead id="tHead" class="bg-teal-700 text-white"></thead>
+      <tbody id="tBody"></tbody>
+    </table>
+  </div>
+
+  <p id="empty" class="hidden text-center text-slate-500 py-10">Tidak ada siswa ditemukan.</p>
+</main>
+
+<div id="modal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-end md:items-center justify-center">
+  <div class="sheet-in bg-white w-full md:max-w-2xl rounded-t-3xl md:rounded-3xl max-h-[92vh] flex flex-col">
+    <div class="p-4 border-b flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-xs text-slate-500">Input Nilai</p>
+        <h2 id="mNama" class="font-bold text-lg truncate"></h2>
+      </div>
+      <button id="btnTutup" class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 shrink-0"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="mBody" class="p-4 overflow-y-auto flex-1 space-y-5"></div>
+    <div class="p-4 border-t bg-teal-50 rounded-b-3xl">
+      <div class="flex items-center justify-between mb-3">
+        <div><p class="text-xs text-slate-500">Nilai Rapor (live)</p><p id="mRapor" class="text-3xl font-bold text-teal-700">-</p></div>
+        <span id="mStatus" class="px-3 py-1 rounded-full text-sm font-semibold bg-slate-200 text-slate-600">-</span>
+      </div>
+      <button id="btnSimpan" class="w-full bg-teal-600 hover:bg-teal-700 active:scale-95 text-white font-semibold py-3 rounded-xl text-base transition"><i class="fa-solid fa-floppy-disk mr-2"></i>Simpan Nilai</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-3 rounded-xl text-white text-sm shadow-lg max-w-[90vw]"></div>
+
+<script>
+var APP = null;
+var KELAS = '';
+var TOKEN = '';
+var USER = null;
+var SEM = 1;
+var SEARCH = '';
+var EDIT = null;
+
+function $(id) { return document.getElementById(id); }
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function toNum(v) {
+  if (v === null || v === undefined) { return null; }
+  var s = String(v).trim().replace(',', '.');
+  if (s === '') { return null; }
+  var n = Number(s);
+  return isNaN(n) ? null : n;
+}
+
+function avg(list) {
+  var n = list.map(toNum).filter(function (x) { return x !== null; });
+  if (!n.length) { return null; }
+  var sum = n.reduce(function (a, b) { return a + b; }, 0);
+  return Math.round(sum / n.length * 10) / 10;
+}
+
+function compute(v) {
+  var c = APP.config;
+  var r = {};
+  var tk = [];
+  for (var i = 1; i <= c.jumlahTugas; i++) { tk.push(v['t' + i]); }
+  r.rataTugas = avg(tk);
+  c.bab.forEach(function (b, bi) {
+    r['rataBab' + b.no] = avg(b.komponen.map(function (_, k) { return v['b' + b.no + '_' + k]; }));
+  });
+  r.rataSub = avg(c.bab.map(function (b) { return r['rataBab' + b.no]; }));
+  var sas = toNum(v.sas);
+  var sikap = toNum(v.sikap);
+  if (r.rataTugas === null && r.rataSub === null && sas === null && sikap === null) {
+    r.rapor = null;
+    r.status = '';
+    return r;
+  }
+  var w = c.bobot;
+  r.rapor = Math.round(((r.rataTugas || 0) * w.tugas + (r.rataSub || 0) * w.subMateri + (sas || 0) * w.sas + (sikap || 0) * w.sikap) / 100);
+  r.status = r.rapor >= c.kkm ? 'Selesai' : 'Tidak Selesai';
+  return r;
+}
+
+function fmt(n) { return (n === null || n === undefined || n === '') ? '-' : n; }
+
+function badge(status) {
+  if (status === 'Selesai') { return '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Selesai</span>'; }
+  if (status === 'Tidak Selesai') { return '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Tidak Selesai</span>'; }
+  return '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Belum dinilai</span>';
+}
+
+function toast(msg, isErr) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] px-4 py-3 rounded-xl text-white text-sm shadow-lg max-w-[90vw] ' + (isErr ? 'bg-red-600' : 'bg-teal-700');
+  setTimeout(function () { t.classList.add('hidden'); }, 3200);
+}
+
+function load(kelas, sem) {
+  $('loading').classList.remove('hidden');
+  google.script.run
+    .withSuccessHandler(function (d) {
+      APP = d;
+      USER = d.user;
+      KELAS = d.kelas;
+      SEM = d.semester;
+      buildShell();
+      render();
+      $('loading').classList.add('hidden');
+    })
+    .withFailureHandler(function (e) {
+      $('loading').classList.add('hidden');
+      if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) { showLogin('Sesi berakhir, silakan masuk lagi.'); return; }
+      if (APP) { $('selKelas').value = KELAS; $('selSemester').value = String(SEM); }
+      toast('Gagal memuat: ' + e.message, true);
+    })
+    .getAppData(TOKEN, kelas || '', sem || 1);
+}
+
+function buildShell() {
+  var c = APP.config;
+  $('hMapel').textContent = 'Rekap Nilai ' + c.mapel;
+  $('hSekolah').textContent = c.sekolah;
+  $('hUser').innerHTML = '<i class="fa-solid fa-circle-user mr-1"></i>' + esc(USER.nama) + ' (' + (USER.peran === 'guru' ? 'Guru - semua kelas' : 'PJ - Kelas ' + esc(KELAS)) + ')' + (USER.canEdit ? '' : ' - hanya lihat');
+  $('hGuru').innerHTML = '<i class="fa-solid fa-user-tie mr-1"></i>' + esc(c.guru) + ' &nbsp;|&nbsp; <i class="fa-regular fa-calendar mr-1"></i>' + esc(c.tahun) + ' Semester ' + (SEM === 2 ? 'II' : 'I') + ' &nbsp;|&nbsp; KKM ' + c.kkm;
+  $('selSemester').value = String(SEM);
+  $('selKelas').innerHTML = APP.kelasList.map(function (k) {
+    return '<option value="' + esc(k) + '"' + (k === KELAS ? ' selected' : '') + '>Kelas ' + esc(k) + '</option>';
+  }).join('');
+  var heads = ['No', 'Nama Siswa', 'Rata Tugas'];
+  c.bab.forEach(function (b) { heads.push('Bab ' + b.no); });
+  heads = heads.concat(['Rata Sub-Materi', 'SAS', 'Sikap', 'Rapor', 'Status']);
+  if (USER && USER.canEdit) { heads.push('Aksi'); }
+  $('tHead').innerHTML = '<tr>' + heads.map(function (h, i) {
+    return '<th class="px-3 py-3 font-semibold ' + (i === 1 ? 'text-left' : 'text-center') + ' whitespace-nowrap">' + esc(h) + '</th>';
+  }).join('') + '</tr>';
+}
+
+function render() {
+  var q = SEARCH.trim().toLowerCase();
+  var list = APP.students.map(function (s, i) { return { s: s, i: i, r: compute(s.values) }; });
+  var rated = list.filter(function (x) { return x.r.rapor !== null; });
+  var done = rated.filter(function (x) { return x.r.status === 'Selesai'; }).length;
+  $('stJumlah').textContent = list.length;
+  $('stRata').textContent = rated.length ? (Math.round(rated.reduce(function (a, x) { return a + x.r.rapor; }, 0) / rated.length * 10) / 10) : '-';
+  $('stTuntas').textContent = rated.length ? (Math.round(done / rated.length * 1000) / 10) + '%' : '0%';
+  $('stBelum').textContent = list.length - rated.length;
+
+  var shown = list.filter(function (x) { return !q || x.s.nama.toLowerCase().indexOf(q) >= 0; });
+  $('empty').classList.toggle('hidden', shown.length > 0);
+
+  $('cards').innerHTML = shown.map(function (x) {
+    var ok = x.r.status === 'Selesai';
+    return '<div class="bg-white rounded-2xl shadow p-4">' +
+      '<div class="flex items-start justify-between gap-3">' +
+      '<div class="min-w-0"><p class="text-xs text-slate-400">No. ' + esc(x.s.no) + '</p><p class="font-semibold leading-snug">' + esc(x.s.nama) + '</p></div>' +
+      '<div class="text-right shrink-0"><p class="text-2xl font-bold ' + (x.r.rapor === null ? 'text-slate-300' : (ok ? 'text-emerald-600' : 'text-red-600')) + '">' + fmt(x.r.rapor) + '</p>' + badge(x.r.status) + '</div></div>' +
+      '<div class="grid grid-cols-3 gap-2 mt-3 text-center text-xs">' +
+      '<div class="bg-teal-50 rounded-lg py-2"><p class="text-slate-500">Tugas</p><p class="font-semibold text-sm">' + fmt(x.r.rataTugas) + '</p></div>' +
+      '<div class="bg-teal-50 rounded-lg py-2"><p class="text-slate-500">Sub-Materi</p><p class="font-semibold text-sm">' + fmt(x.r.rataSub) + '</p></div>' +
+      '<div class="bg-teal-50 rounded-lg py-2"><p class="text-slate-500">SAS</p><p class="font-semibold text-sm">' + fmt(toNum(x.s.values.sas)) + '</p></div></div>' +
+      (USER.canEdit ? '<button data-i="' + x.i + '" class="btnEdit mt-3 w-full bg-teal-600 active:scale-95 text-white font-semibold py-3 rounded-xl"><i class="fa-solid fa-pen-to-square mr-2"></i>Input Nilai</button>' : '') + '</div>';
+  }).join('');
+
+  $('tBody').innerHTML = shown.map(function (x) {
+    var td = function (t, cls) { return '<td class="px-3 py-2 ' + (cls || 'text-center') + '">' + t + '</td>'; };
+    var cells = td(esc(x.s.no)) + td('<span class="font-medium">' + esc(x.s.nama) + '</span>', 'text-left whitespace-nowrap') + td(fmt(x.r.rataTugas));
+    APP.config.bab.forEach(function (b, bi) { cells += td(fmt(x.r['rataBab' + b.no])); });
+    cells += td(fmt(x.r.rataSub)) + td(fmt(toNum(x.s.values.sas))) + td(fmt(toNum(x.s.values.sikap))) +
+      td('<b>' + fmt(x.r.rapor) + '</b>') + td(badge(x.r.status)) +
+      (USER.canEdit ? td('<button data-i="' + x.i + '" class="btnEdit bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i>Input</button>') : '');
+    return '<tr class="border-b hover:bg-teal-50">' + cells + '</tr>';
+  }).join('');
+}
+
+function field(key, label, val) {
+  return '<label class="block"><span class="text-xs font-semibold text-slate-500">' + esc(label) + '</span>' +
+    '<input data-key="' + key + '" type="number" inputmode="decimal" min="0" max="100" step="any" value="' + esc(val) + '" ' +
+    'class="nilai mt-1 w-full border border-slate-300 rounded-xl px-2 py-3 text-center text-base font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500"></label>';
+}
+
+function section(title, inner, avgId) {
+  return '<div><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-teal-700 text-sm">' + esc(title) + '</h3>' +
+    (avgId ? '<span class="text-xs text-slate-500">Rata-rata: <b id="' + avgId + '" class="text-slate-800">-</b></span>' : '') + '</div>' + inner + '</div>';
+}
+
+function openModal(i) {
+  EDIT = i;
+  var s = APP.students[i];
+  var c = APP.config;
+  var v = s.values;
+  $('mNama').textContent = s.nama;
+  var html = '';
+  var tg = '<div class="grid grid-cols-5 gap-2">';
+  for (var t = 1; t <= c.jumlahTugas; t++) { tg += field('t' + t, 'T' + t, v['t' + t]); }
+  tg += '</div>';
+  html += section('Tugas Harian', tg, 'avTugas');
+  c.bab.forEach(function (b, bi) {
+    var g = '<div class="grid grid-cols-' + Math.min(b.komponen.length, 4) + ' gap-2">';
+    b.komponen.forEach(function (k, ki) { g += field('b' + b.no + '_' + ki, k, v['b' + b.no + '_' + ki]); });
+    g += '</div>';
+    html += section(b.nama, g, 'avBab' + b.no);
+  });
+  html += section('Nilai Akhir', '<div class="grid grid-cols-2 gap-2">' + field('sas', 'SAS', v.sas) + field('sikap', 'Sikap', v.sikap) + '</div>', 'avSub');
+  $('mBody').innerHTML = html;
+  $('mBody').querySelectorAll('.nilai').forEach(function (el) { el.addEventListener('input', live); });
+  $('modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  live();
+}
+
+function collect() {
+  var v = {};
+  $('mBody').querySelectorAll('.nilai').forEach(function (el) { v[el.getAttribute('data-key')] = el.value; });
+  return v;
+}
+
+function live() {
+  var v = collect();
+  var r = compute(v);
+  $('avTugas').textContent = fmt(r.rataTugas);
+  APP.config.bab.forEach(function (b, bi) { $('avBab' + b.no).textContent = fmt(r['rataBab' + b.no]); });
+  $('avSub').textContent = fmt(r.rataSub);
+  $('mRapor').textContent = fmt(r.rapor);
+  var st = $('mStatus');
+  st.textContent = r.status || '-';
+  var cls = 'bg-slate-200 text-slate-600';
+  if (r.status === 'Selesai') { cls = 'bg-emerald-100 text-emerald-700'; }
+  if (r.status === 'Tidak Selesai') { cls = 'bg-red-100 text-red-700'; }
+  st.className = 'px-3 py-1 rounded-full text-sm font-semibold ' + cls;
+}
+
+function closeModal() {
+  $('modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  EDIT = null;
+}
+
+function save() {
+  var v = collect();
+  var bad = null;
+  Object.keys(v).forEach(function (k) {
+    var n = toNum(v[k]);
+    if (String(v[k]).trim() !== '' && (n === null || n < 0 || n > 100)) { bad = k; }
+  });
+  if (bad) { toast('Nilai harus angka 0 sampai 100.', true); return; }
+  var s = APP.students[EDIT];
+  var btn = $('btnSimpan');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Menyimpan...';
+  google.script.run
+    .withSuccessHandler(function (res) {
+      Object.keys(res.values).forEach(function (k) { s.values[k] = res.values[k]; });
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>Simpan Nilai';
+      closeModal();
+      render();
+      toast('Nilai tersimpan.');
+    })
+    .withFailureHandler(function (e) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>Simpan Nilai';
+      if (String(e.message).indexOf('SESSION_EXPIRED') >= 0) { closeModal(); showLogin('Sesi berakhir, silakan masuk lagi.'); return; }
+      toast('Gagal menyimpan: ' + e.message, true);
+    })
+    .updateStudentScore(TOKEN, KELAS, SEM, s.row, v);
+}
+
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.btnEdit');
+  if (b) { openModal(Number(b.getAttribute('data-i'))); }
+});
+$('selKelas').addEventListener('change', function () { SEARCH = ''; $('inpCari').value = ''; load(this.value, SEM); });
+$('selSemester').addEventListener('change', function () { SEARCH = ''; $('inpCari').value = ''; load(KELAS, Number(this.value)); });
+$('inpCari').addEventListener('input', function () { SEARCH = this.value; render(); });
+$('btnTutup').addEventListener('click', closeModal);
+$('btnSimpan').addEventListener('click', save);
+$('modal').addEventListener('click', function (e) { if (e.target === this) { closeModal(); } });
+
+function showApp() {
+  $('loginScreen').classList.add('hidden');
+  $('appHeader').classList.remove('hidden');
+  $('appMain').classList.remove('hidden');
+}
+
+function showLogin(msg) {
+  TOKEN = '';
+  USER = null;
+  APP = null;
+  try { sessionStorage.removeItem('rn_token'); } catch (e) {}
+  $('modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  $('appHeader').classList.add('hidden');
+  $('appMain').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+  $('loginErr').textContent = msg || '';
+  $('loginErr').classList.toggle('hidden', !msg);
+  $('inpPass').value = '';
+}
+
+function resetLoginBtn() {
+  var b = $('btnLogin');
+  b.disabled = false;
+  b.textContent = 'Masuk';
+}
+
+function doLogin() {
+  var u = $('inpUser').value.trim();
+  var p = $('inpPass').value;
+  if (!u || !p) {
+    $('loginErr').textContent = 'Isi username dan password.';
+    $('loginErr').classList.remove('hidden');
+    return;
+  }
+  var b = $('btnLogin');
+  b.disabled = true;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Memeriksa...';
+  google.script.run
+    .withSuccessHandler(function (res) {
+      TOKEN = res.token;
+      try { sessionStorage.setItem('rn_token', TOKEN); } catch (e) {}
+      $('inpPass').value = '';
+      $('loginErr').classList.add('hidden');
+      resetLoginBtn();
+      showApp();
+      load('', 1);
+    })
+    .withFailureHandler(function (e) {
+      resetLoginBtn();
+      $('loginErr').textContent = e.message;
+      $('loginErr').classList.remove('hidden');
+    })
+    .login(u, p);
+}
+
+function doLogout() {
+  var t = TOKEN;
+  showLogin('');
+  google.script.run.logout(t);
+}
+
+$('btnLogin').addEventListener('click', doLogin);
+$('btnLogout').addEventListener('click', doLogout);
+$('inpPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') { doLogin(); } });
+$('inpUser').addEventListener('keydown', function (e) { if (e.key === 'Enter') { $('inpPass').focus(); } });
+$('btnEye').addEventListener('click', function () {
+  var i = $('inpPass');
+  var show = i.type === 'password';
+  i.type = show ? 'text' : 'password';
+  this.innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+});
+
+(function () {
+  var t = '';
+  try { t = sessionStorage.getItem('rn_token') || ''; } catch (e) {}
+  if (t) {
+    TOKEN = t;
+    showApp();
+    load('', 1);
+  }
+})();
+</script>
+</body>
+</html>
